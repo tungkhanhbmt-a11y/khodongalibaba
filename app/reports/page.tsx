@@ -112,9 +112,9 @@ export default function ReportsPage() {
       // Tạo URL screenshot
       const screenshotUrl = `https://chupanh.onrender.com/screenshot?url=${encodeURIComponent(printUrl)}`;
       
-      // Hiển thị thông báo chờ 15 giây
+      // Hiển thị thông báo chờ 30 giây (tăng thời gian chờ)
       const countdownAlert = () => {
-        let countdown = 15;
+        let countdown = 30;
         const alertDiv = document.createElement('div');
         alertDiv.style.cssText = `
           position: fixed;
@@ -185,30 +185,70 @@ export default function ReportsPage() {
           const now = new Date();
           const fileName = `BaoCao_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}.png`;
           
-          // Fetch ảnh và tải về
-          const response = await fetch(screenshotUrl);
+          // Fetch ảnh với timeout và retry
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+          
+          const response = await fetch(screenshotUrl, {
+            signal: controller.signal,
+            method: 'GET',
+            headers: {
+              'Accept': 'image/png,image/*,*/*'
+            }
+          });
+          
+          clearTimeout(timeoutId);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
           const blob = await response.blob();
+          
+          // Kiểm tra xem blob có phải là ảnh không
+          if (!blob.type.startsWith('image/')) {
+            throw new Error('File tải về không phải là ảnh');
+          }
           
           // Tạo URL object và download
           const url = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
           link.download = fileName;
+          link.style.display = 'none';
           
-          // Trigger download
+          // Trigger download với user gesture
           document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
           
-          // Cleanup URL object
-          window.URL.revokeObjectURL(url);
+          // Sử dụng setTimeout để đảm bảo link đã được add vào DOM
+          setTimeout(() => {
+            link.click();
+            
+            // Cleanup sau khi download
+            setTimeout(() => {
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
+            }, 100);
+          }, 100);
           
           // Hiển thị thông báo thành công
-          alert('Báo cáo đã được tải về thành công!');
+          setTimeout(() => {
+            alert('Báo cáo đã được tải về thành công! Kiểm tra thư mục Downloads của bạn.');
+          }, 500);
           
         } catch (error) {
           console.error('Lỗi khi tải ảnh:', error);
-          alert('Có lỗi xảy ra khi tải ảnh. Vui lòng thử lại!');
+          
+          // Fallback: Mở ảnh trong tab mới để user có thể save manually
+          const fallbackLink = document.createElement('a');
+          fallbackLink.href = screenshotUrl;
+          fallbackLink.target = '_blank';
+          fallbackLink.rel = 'noopener noreferrer';
+          document.body.appendChild(fallbackLink);
+          fallbackLink.click();
+          document.body.removeChild(fallbackLink);
+          
+          alert('Không thể tự động tải ảnh. Đã mở ảnh trong tab mới, bạn có thể click chuột phải và chọn "Save image as..."');
         } finally {
           setIsCapturing(false);
         }
