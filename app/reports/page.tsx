@@ -37,6 +37,9 @@ export default function ReportsPage() {
   const [toDate, setToDate] = useState('');
   const [filterBranch, setFilterBranch] = useState('');
   const [branches, setBranches] = useState<{id: number; name: string}[]>([]);
+  
+  // Screenshot states
+  const [isCapturing, setIsCapturing] = useState(false);
 
   // Format date to dd-mm-yyyy
   const formatDate = (dateString: string) => {
@@ -91,6 +94,46 @@ export default function ReportsPage() {
 
     fetchBranches();
   }, []);
+
+  // Function to capture screenshot of print report
+  const captureReportScreenshot = async () => {
+    if (filteredInvoices.length === 0) return;
+    
+    setIsCapturing(true);
+    
+    try {
+      // Tạo URL của trang print với các tham số filter
+      const printUrl = `${window.location.origin}/reports/print?${new URLSearchParams({
+        ...(fromDate && { fromDate }),
+        ...(toDate && { toDate }),
+        ...(filterBranch && { branch: filterBranch })
+      }).toString()}`;
+      
+      // Tạo URL screenshot
+      const screenshotUrl = `https://chupanh.onrender.com/screenshot?url=${encodeURIComponent(printUrl)}`;
+      
+      // Tạo tên file với thời gian hiện tại
+      const now = new Date();
+      const fileName = `BaoCao_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}.png`;
+      
+      // Tạo link download
+      const link = document.createElement('a');
+      link.href = screenshotUrl;
+      link.download = fileName;
+      link.target = '_blank';
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+    } catch (error) {
+      console.error('Lỗi khi chụp ảnh báo cáo:', error);
+      alert('Có lỗi xảy ra khi chụp ảnh báo cáo. Vui lòng thử lại!');
+    } finally {
+      setIsCapturing(false);
+    }
+  };
 
   // Filter invoices based on date range and branch
   const filteredInvoices = invoiceData.filter(invoice => {
@@ -210,26 +253,30 @@ export default function ReportsPage() {
                     Tổng: {filteredInvoices.reduce((sum, invoice) => sum + invoice.total, 0).toLocaleString()}đ
                   </div>
                 </div>
-                <a
-                  href={`/reports/print?${new URLSearchParams({
-                    ...(fromDate && { fromDate }),
-                    ...(toDate && { toDate }),
-                    ...(filterBranch && { branch: filterBranch })
-                  }).toString()}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={captureReportScreenshot}
+                  disabled={filteredInvoices.length === 0 || isCapturing}
                   className={`px-4 py-2 rounded-lg transition-colors flex items-center space-x-2 ${
-                    filteredInvoices.length === 0
+                    filteredInvoices.length === 0 || isCapturing
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-green-600 text-white hover:bg-green-700'
                   }`}
-                  onClick={filteredInvoices.length === 0 ? (e) => e.preventDefault() : undefined}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                  </svg>
-                  <span>Xem báo cáo</span>
-                </a>
+                  {isCapturing ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Đang chụp...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>Chụp báo cáo</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
 
