@@ -134,50 +134,60 @@ function PrintReportContent() {
           nav, header, .navigation {
             display: none !important;
           }
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          .print-container {
+            padding: 20px !important;
+            max-width: none !important;
+            margin: 0 !important;
+          }
         `
       }} />
-      <div className="min-h-screen bg-white" suppressHydrationWarning={true}>
+      <div className="bg-white" suppressHydrationWarning={true}>
         {/* Print Content */}
-        <div className="print-container max-w-7xl mx-auto p-8">
+        <div className="print-container p-5">
         {/* Print Table */}
         {filteredInvoices.length === 0 ? (
-          <div className="text-center py-12 border-2 border-gray-300 rounded-lg">
-            <p className="text-xl text-gray-500">Không có hóa đơn nào trong khoảng thời gian đã chọn</p>
+          <div className="text-center py-4 border-2 border-gray-300 rounded-lg">
+            <p className="text-lg text-gray-500">Không có hóa đơn nào</p>
           </div>
         ) : (
-          <div className="overflow-x-auto mb-8">
+          <div className="overflow-x-auto">
               <table className="w-full border-collapse border-2 border-gray-300">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700 uppercase">STT</th>
-                    <th className="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700 uppercase">Ngày lập</th>
-                    <th className="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700 uppercase">Chi nhánh</th>
-                    <th className="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700 uppercase">Tổng tiền</th>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-sm font-bold text-gray-700 uppercase">STT</th>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-sm font-bold text-gray-700 uppercase">Ngày lập</th>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-sm font-bold text-gray-700 uppercase">Chi nhánh</th>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-sm font-bold text-gray-700 uppercase">Tổng tiền</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredInvoices.map((invoice, index) => (
                     <tr key={invoice.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                      <td className="border border-gray-300 px-4 py-3 text-sm text-gray-900">
+                      <td className="border border-gray-300 px-3 py-2 text-sm text-gray-900">
                         {index + 1}
                       </td>
-                      <td className="border border-gray-300 px-4 py-3 text-sm text-gray-900">
+                      <td className="border border-gray-300 px-3 py-2 text-sm text-gray-900">
                         {formatDate(invoice.date)}
                       </td>
-                      <td className="border border-gray-300 px-4 py-3 text-sm text-gray-900">
+                      <td className="border border-gray-300 px-3 py-2 text-sm text-gray-900">
                         {invoice.branch}
                       </td>
-                      <td className="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-900">
+                      <td className="border border-gray-300 px-3 py-2 text-sm font-medium text-gray-900">
                         {formatNumber(invoice.total)}đ
                       </td>
                     </tr>
                   ))}
                   {/* Total Row */}
                   <tr className="bg-yellow-100 font-bold">
-                    <td colSpan={3} className="border border-gray-300 px-4 py-3 text-sm font-bold text-gray-900 text-right">
+                    <td colSpan={3} className="border border-gray-300 px-3 py-2 text-sm font-bold text-gray-900 text-right">
                       TỔNG CỘNG:
                     </td>
-                    <td className="border border-gray-300 px-4 py-3 text-sm font-bold text-gray-900">
+                    <td className="border border-gray-300 px-3 py-2 text-sm font-bold text-gray-900">
                       {formatNumber(filteredInvoices.reduce((sum, invoice) => sum + invoice.total, 0))}đ
                     </td>
                   </tr>
