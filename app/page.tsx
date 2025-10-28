@@ -482,7 +482,7 @@ export default function Home() {
               <div className="md:col-span-2">
                 <input
                   type="text"
-                  placeholder="Tìm kiếm mã phiếu, chi nhánh..."
+                  placeholder="Tìm kiếm chi nhánh..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
@@ -534,7 +534,6 @@ export default function Home() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã phiếu</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày lập</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chi nhánh</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng tiền</th>
@@ -544,13 +543,13 @@ export default function Home() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {orders.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
                       Chưa có đơn hàng nào
                     </td>
                   </tr>
                 ) : filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
                       Không tìm thấy đơn hàng phù hợp với bộ lọc
                       <div className="mt-2">
                         <button
@@ -567,9 +566,6 @@ export default function Home() {
                     <tr key={order.orderCode} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {index + 1}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-medium text-gray-900">{order.orderCode}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {formatDate(order.date)}

@@ -150,7 +150,6 @@ function PrintReportContent() {
                 <thead>
                   <tr className="bg-gray-100">
                     <th className="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700 uppercase">STT</th>
-                    <th className="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700 uppercase">Mã hóa đơn</th>
                     <th className="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700 uppercase">Ngày lập</th>
                     <th className="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700 uppercase">Chi nhánh</th>
                     <th className="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-gray-700 uppercase">Tổng tiền</th>
@@ -161,9 +160,6 @@ function PrintReportContent() {
                     <tr key={invoice.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                       <td className="border border-gray-300 px-4 py-3 text-sm text-gray-900">
                         {index + 1}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-900">
-                        {invoice.orderCode}
                       </td>
                       <td className="border border-gray-300 px-4 py-3 text-sm text-gray-900">
                         {formatDate(invoice.date)}
@@ -178,7 +174,7 @@ function PrintReportContent() {
                   ))}
                   {/* Total Row */}
                   <tr className="bg-yellow-100 font-bold">
-                    <td colSpan={4} className="border border-gray-300 px-4 py-3 text-sm font-bold text-gray-900 text-right">
+                    <td colSpan={3} className="border border-gray-300 px-4 py-3 text-sm font-bold text-gray-900 text-right">
                       TỔNG CỘNG:
                     </td>
                     <td className="border border-gray-300 px-4 py-3 text-sm font-bold text-gray-900">
