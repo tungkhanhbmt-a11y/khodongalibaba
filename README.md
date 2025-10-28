@@ -1,4 +1,13 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KHO ĐÔNG ALIBABA
+
+Hệ thống quản lý kho và bán hàng chuyên nghiệp cho KHO ĐÔNG ALIBABA.
+
+## Tính năng chính
+
+- **Quản lý bán hàng**: Tạo đơn hàng, quản lý sản phẩm và chi nhánh
+- **Báo cáo**: Thống kê doanh thu, danh sách hóa đơn với tính năng in ấn
+- **Quản lý sản phẩm**: CRUD sản phẩm với tích hợp Google Sheets
+- **Tích hợp Google Sheets**: Lưu trữ và đồng bộ dữ liệu real-time
 
 ## Getting Started
 
