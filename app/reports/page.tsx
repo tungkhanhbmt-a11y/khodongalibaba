@@ -112,25 +112,114 @@ export default function ReportsPage() {
       // Tạo URL screenshot
       const screenshotUrl = `https://chupanh.onrender.com/screenshot?url=${encodeURIComponent(printUrl)}`;
       
-      // Tạo tên file với thời gian hiện tại
-      const now = new Date();
-      const fileName = `BaoCao_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}.png`;
+      // Hiển thị thông báo chờ 15 giây
+      const countdownAlert = () => {
+        let countdown = 15;
+        const alertDiv = document.createElement('div');
+        alertDiv.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: white;
+          border: 2px solid #3b82f6;
+          border-radius: 12px;
+          padding: 24px;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+          z-index: 9999;
+          text-align: center;
+          min-width: 300px;
+        `;
+        
+        const overlayDiv = document.createElement('div');
+        overlayDiv.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 9998;
+        `;
+        
+        const updateAlert = () => {
+          alertDiv.innerHTML = `
+            <div style="margin-bottom: 16px;">
+              <div style="width: 48px; height: 48px; border: 4px solid #e5e7eb; border-top: 4px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
+              <h3 style="font-size: 18px; font-weight: 600; margin: 0 0 8px 0; color: #1f2937;">Đang chụp ảnh báo cáo</h3>
+              <p style="margin: 0; color: #6b7280;">Vui lòng chờ ${countdown} giây...</p>
+            </div>
+          `;
+        };
+        
+        // Thêm CSS animation
+        if (!document.querySelector('#spin-animation')) {
+          const style = document.createElement('style');
+          style.id = 'spin-animation';
+          style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+          document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(overlayDiv);
+        document.body.appendChild(alertDiv);
+        updateAlert();
+        
+        const interval = setInterval(() => {
+          countdown--;
+          if (countdown > 0) {
+            updateAlert();
+          } else {
+            clearInterval(interval);
+            document.body.removeChild(overlayDiv);
+            document.body.removeChild(alertDiv);
+            
+            // Sau 15 giây, tải ảnh về
+            downloadImage();
+          }
+        }, 1000);
+      };
       
-      // Tạo link download
-      const link = document.createElement('a');
-      link.href = screenshotUrl;
-      link.download = fileName;
-      link.target = '_blank';
+      const downloadImage = async () => {
+        try {
+          // Tạo tên file với thời gian hiện tại
+          const now = new Date();
+          const fileName = `BaoCao_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}.png`;
+          
+          // Fetch ảnh và tải về
+          const response = await fetch(screenshotUrl);
+          const blob = await response.blob();
+          
+          // Tạo URL object và download
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          
+          // Trigger download
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Cleanup URL object
+          window.URL.revokeObjectURL(url);
+          
+          // Hiển thị thông báo thành công
+          alert('Báo cáo đã được tải về thành công!');
+          
+        } catch (error) {
+          console.error('Lỗi khi tải ảnh:', error);
+          alert('Có lỗi xảy ra khi tải ảnh. Vui lòng thử lại!');
+        } finally {
+          setIsCapturing(false);
+        }
+      };
       
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Bắt đầu countdown
+      countdownAlert();
       
     } catch (error) {
       console.error('Lỗi khi chụp ảnh báo cáo:', error);
       alert('Có lỗi xảy ra khi chụp ảnh báo cáo. Vui lòng thử lại!');
-    } finally {
       setIsCapturing(false);
     }
   };
