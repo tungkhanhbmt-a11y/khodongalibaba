@@ -102,15 +102,15 @@ export default function ReportsPage() {
     setIsCapturing(true);
     
     try {
-      // Tạo URL của trang print với các tham số filter
-      const printUrl = `https://kdalibaba.netlify.app/reports/print?${new URLSearchParams({
+      // Tạo URL của API screenshot với các tham số filter
+      const screenshotApiUrl = `https://kdalibaba.netlify.app/api/screenshot-report?${new URLSearchParams({
         ...(fromDate && { fromDate }),
         ...(toDate && { toDate }),
         ...(filterBranch && { branch: filterBranch })
       }).toString()}`;
       
       // Tạo URL screenshot
-      const screenshotUrl = `https://chupanh.onrender.com/screenshot?url=${encodeURIComponent(printUrl)}`;
+      const screenshotUrl = `https://chupanh.onrender.com/screenshot?url=${encodeURIComponent(screenshotApiUrl)}`;
       
       // Hiển thị thông báo chờ 15 giây
       const countdownAlert = () => {
