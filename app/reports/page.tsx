@@ -103,7 +103,7 @@ export default function ReportsPage() {
     
     try {
       // Tạo URL của trang print với các tham số filter
-      const printUrl = `${window.location.origin}/reports/print?${new URLSearchParams({
+      const printUrl = `https://kdalibaba.netlify.app/reports/print?${new URLSearchParams({
         ...(fromDate && { fromDate }),
         ...(toDate && { toDate }),
         ...(filterBranch && { branch: filterBranch })
