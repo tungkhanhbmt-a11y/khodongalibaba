@@ -39,6 +39,10 @@ export default function ProductsPage() {
   
   // Filtered products
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  
+  // Loading states
+  const [savingProduct, setSavingProduct] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -110,6 +114,7 @@ export default function ProductsPage() {
       return;
     }
     
+    setSavingProduct(true);
     try {
       const response = await fetch('/api/products', {
         method: 'POST',
@@ -138,6 +143,8 @@ export default function ProductsPage() {
     } catch (error) {
       console.error('Error adding product:', error);
       alert('Có lỗi xảy ra khi thêm sản phẩm');
+    } finally {
+      setSavingProduct(false);
     }
   };
 
@@ -147,6 +154,7 @@ export default function ProductsPage() {
       return;
     }
     
+    setSavingProduct(true);
     try {
       const response = await fetch('/api/products', {
         method: 'PUT',
@@ -177,12 +185,15 @@ export default function ProductsPage() {
     } catch (error) {
       console.error('Error updating product:', error);
       alert('Có lỗi xảy ra khi cập nhật sản phẩm');
+    } finally {
+      setSavingProduct(false);
     }
   };
 
   const handleDeleteProduct = async () => {
     if (!selectedProduct) return;
     
+    setDeletingProduct(true);
     try {
       const response = await fetch(`/api/products?id=${selectedProduct.id}`, {
         method: 'DELETE',
@@ -203,6 +214,8 @@ export default function ProductsPage() {
     } catch (error) {
       console.error('Error deleting product:', error);
       alert('Có lỗi xảy ra khi xóa sản phẩm');
+    } finally {
+      setDeletingProduct(false);
     }
   };
 
@@ -232,7 +245,8 @@ export default function ProductsPage() {
             </div>
             <button 
               onClick={() => setShowAddModal(true)}
-              className="mt-4 sm:mt-0 bg-blue-600 text-white px-6 py-3 rounded-xl shadow-sm hover:bg-blue-700 transition-colors duration-200 flex items-center"
+              disabled={savingProduct || deletingProduct}
+              className="mt-4 sm:mt-0 bg-blue-600 text-white px-6 py-3 rounded-xl shadow-sm hover:bg-blue-700 transition-colors duration-200 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <PlusIcon className="w-5 h-5 mr-2" />
               Thêm sản phẩm
@@ -355,7 +369,8 @@ export default function ProductsPage() {
                       <div className="flex items-center justify-center space-x-2">
                         <button 
                           onClick={() => openEditModal(product)}
-                          className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 rounded-full transition-colors duration-200"
+                          disabled={savingProduct || deletingProduct}
+                          className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <PencilIcon className="w-4 h-4" />
                         </button>
@@ -364,7 +379,8 @@ export default function ProductsPage() {
                         </button>
                         <button 
                           onClick={() => openDeleteModal(product)}
-                          className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-full transition-colors duration-200"
+                          disabled={savingProduct || deletingProduct}
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <TrashIcon className="w-4 h-4" />
                         </button>
@@ -427,15 +443,23 @@ export default function ProductsPage() {
                     setShowAddModal(false);
                     setFormData({ name: '', unit: '', price: '' });
                   }}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  disabled={savingProduct}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={handleAddProduct}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  disabled={savingProduct}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                 >
-                  Thêm sản phẩm
+                  {savingProduct && (
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  )}
+                  {savingProduct ? 'Đang lưu...' : 'Thêm sản phẩm'}
                 </button>
               </div>
             </div>
@@ -493,15 +517,23 @@ export default function ProductsPage() {
                     setSelectedProduct(null);
                     setFormData({ name: '', unit: '', price: '' });
                   }}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  disabled={savingProduct}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={handleEditProduct}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  disabled={savingProduct}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                 >
-                  Cập nhật
+                  {savingProduct && (
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  )}
+                  {savingProduct ? 'Đang cập nhật...' : 'Cập nhật'}
                 </button>
               </div>
             </div>
@@ -640,15 +672,23 @@ export default function ProductsPage() {
                     setShowDeleteModal(false);
                     setSelectedProduct(null);
                   }}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  disabled={deletingProduct}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={handleDeleteProduct}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  disabled={deletingProduct}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                 >
-                  Xóa sản phẩm
+                  {deletingProduct && (
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  )}
+                  {deletingProduct ? 'Đang xóa...' : 'Xóa sản phẩm'}
                 </button>
               </div>
             </div>

@@ -145,7 +145,7 @@ export default function Navigation() {
 
       {/* Bottom Navigation for Mobile */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-30">
-        <div className="grid grid-cols-4 gap-1 px-2 py-2">
+        <div className="grid grid-cols-3 gap-0 px-1 py-2">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -153,14 +153,14 @@ export default function Navigation() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex flex-col items-center justify-center py-2 px-1 text-xs font-medium rounded-lg transition-colors duration-200 ${
+                className={`flex flex-col items-center justify-center py-3 px-2 text-xs font-medium rounded-lg transition-colors duration-200 mx-1 ${
                   isActive
                     ? 'text-blue-600 bg-blue-50'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 <Icon className="w-6 h-6 mb-1" />
-                <span className="text-xs truncate">{item.name}</span>
+                <span className="text-xs font-medium truncate w-full text-center">{item.name}</span>
               </Link>
             );
           })}

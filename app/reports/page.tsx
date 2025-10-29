@@ -40,6 +40,9 @@ export default function ReportsPage() {
   
   // Screenshot states
   const [isCapturing, setIsCapturing] = useState(false);
+  
+  // Loading states
+  const [loadingInvoiceDetail, setLoadingInvoiceDetail] = useState(false);
 
   // Format date to dd-mm-yyyy
   const formatDate = (dateString: string) => {
@@ -296,7 +299,11 @@ export default function ReportsPage() {
 
   // View invoice details
   const viewInvoiceDetails = async (invoice: InvoiceData) => {
+    setLoadingInvoiceDetail(true);
     try {
+      // Simulate loading delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       // Get details from salesData for this invoice
       const details = salesData.filter(item => item.orderCode === invoice.orderCode);
       
@@ -305,6 +312,8 @@ export default function ReportsPage() {
       setShowInvoiceDetail(true);
     } catch (error) {
       console.error('Error loading invoice details:', error);
+    } finally {
+      setLoadingInvoiceDetail(false);
     }
   };
   return (
@@ -523,10 +532,14 @@ export default function ReportsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <button
                           onClick={() => viewInvoiceDetails(invoice)}
-                          className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                          disabled={loadingInvoiceDetail}
+                          className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors disabled:opacity-50 flex items-center space-x-1"
                           title="Xem chi tiết"
                         >
-                          Xem
+                          {loadingInvoiceDetail && (
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-700"></div>
+                          )}
+                          <span>{loadingInvoiceDetail ? 'Đang tải...' : 'Xem'}</span>
                         </button>
                       </td>
                     </tr>

@@ -48,6 +48,11 @@ export default function Home() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [orderDetails, setOrderDetails] = useState<any[]>([]);
   const [editingOrder, setEditingOrder] = useState<any>(null);
+  
+  // Loading states
+  const [savingOrder, setSavingOrder] = useState(false);
+  const [deletingOrder, setDeletingOrder] = useState<string | null>(null);
+  const [loadingOrderDetails, setLoadingOrderDetails] = useState(false);
   const [originalOrderCode, setOriginalOrderCode] = useState<string>('');
 
   // Filter states
@@ -232,6 +237,7 @@ export default function Home() {
 
   // View order details
   const viewOrderDetails = async (order: any) => {
+    setLoadingOrderDetails(true);
     try {
       // Fetch order details from Sales sheet
       const response = await fetch(`/api/sales`);
@@ -246,6 +252,8 @@ export default function Home() {
     } catch (error) {
       console.error('Error fetching order details:', error);
       alert('Không thể tải chi tiết đơn hàng');
+    } finally {
+      setLoadingOrderDetails(false);
     }
   };
 
@@ -294,12 +302,16 @@ export default function Home() {
       return;
     }
     
+    setDeletingOrder(order.orderCode);
     try {
       // This would need API implementation to delete from both Sales and dshoadon sheets
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
       alert(`Chức năng xóa đơn hàng ${order.orderCode} sẽ được phát triển sau`);
     } catch (error) {
       console.error('Error deleting order:', error);
       alert('Có lỗi xảy ra khi xóa đơn hàng');
+    } finally {
+      setDeletingOrder(null);
     }
   };
 
@@ -385,6 +397,7 @@ export default function Home() {
       return;
     }
 
+    setSavingOrder(true);
     try {
       let response;
       
@@ -443,6 +456,8 @@ export default function Home() {
     } catch (error) {
       console.error('Error submitting order:', error);
       alert('Có lỗi xảy ra khi lưu đơn hàng. Vui lòng thử lại.');
+    } finally {
+      setSavingOrder(false);
     }
   };
 
@@ -580,10 +595,14 @@ export default function Home() {
                         <div className="flex justify-center space-x-2">
                           <button
                             onClick={() => viewOrderDetails(order)}
-                            className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                            disabled={loadingOrderDetails}
+                            className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors disabled:opacity-50 flex items-center space-x-1"
                             title="Xem chi tiết"
                           >
-                            Xem
+                            {loadingOrderDetails && (
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-700"></div>
+                            )}
+                            <span>{loadingOrderDetails ? 'Đang tải...' : 'Xem'}</span>
                           </button>
                           <button
                             onClick={() => editOrder(order)}
@@ -594,10 +613,14 @@ export default function Home() {
                           </button>
                           <button
                             onClick={() => deleteOrder(order)}
-                            className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
+                            disabled={deletingOrder === order.orderCode}
+                            className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors disabled:opacity-50 flex items-center space-x-1"
                             title="Xóa đơn hàng"
                           >
-                            Xóa
+                            {deletingOrder === order.orderCode && (
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-700"></div>
+                            )}
+                            <span>{deletingOrder === order.orderCode ? 'Đang xóa...' : 'Xóa'}</span>
                           </button>
                         </div>
                       </td>
@@ -848,10 +871,13 @@ export default function Home() {
                 </button>
                 <button
                   onClick={submitOrder}
-                  disabled={!customerInfo.branch || !customerInfo.date || cartItems.length === 0}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!customerInfo.branch || !customerInfo.date || cartItems.length === 0 || savingOrder}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                 >
-                  {editingOrder ? 'Cập nhật đơn hàng' : 'Tạo đơn hàng'}
+                  {savingOrder && (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  )}
+                  <span>{savingOrder ? 'Đang lưu...' : (editingOrder ? 'Cập nhật đơn hàng' : 'Tạo đơn hàng')}</span>
                 </button>
               </div>
             </div>
